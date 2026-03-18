@@ -47,3 +47,11 @@ sysinfo.txt
 *.unitypackage
 *.app
 *.ipa
+
+# Local signing / generated files
+*.keystore
+test_mapping.txt
+Assets/GeneratedLocalRepo/
+Assets/GeneratedLocalRepo.meta
+Assets/_Recovery/
+Assets/_Recovery.meta

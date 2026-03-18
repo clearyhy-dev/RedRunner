@@ -1,0 +1,8 @@
+lastUpgrade=20100
+proj.pluginVersion=2.1.0
+proj.AppId=580332765043
+and.ClientId=580332765043-sc3vkqserkeddsbs47ue7mhqli7atumq.apps.googleusercontent.com
+and.BundleId=com.clearyhy.meowrunner
+proj.classDir=Assets
+proj.ConstantsClassName=GPGSIds
+android.SetupDone=true

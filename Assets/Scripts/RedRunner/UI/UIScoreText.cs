@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +20,12 @@ namespace RedRunner.UI
 			base.Awake ();
 		}
 
+		protected virtual void OnDestroy ()
+		{
+			GameManager.OnScoreChanged -= GameManager_OnScoreChanged;
+			GameManager.OnReset -= GameManager_OnReset;
+		}
+
 		void GameManager_OnReset ()
 		{
 			m_Collected = false;
@@ -27,11 +33,13 @@ namespace RedRunner.UI
 
 		void GameManager_OnScoreChanged ( float newScore, float highScore, float lastScore )
 		{
+			if ( this == null ) return;
 			text = newScore.ToLength ();
 			if ( newScore > highScore && !m_Collected )
 			{
 				m_Collected = true;
-				GetComponent<Animator> ().SetTrigger ( "Collect" );
+				var anim = GetComponent<Animator> ();
+				if ( anim != null ) anim.SetTrigger ( "Collect" );
 			}
 		}
 

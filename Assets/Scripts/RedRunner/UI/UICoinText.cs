@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ namespace RedRunner.UI
 	public class UICoinText : UIText
 	{
 		[SerializeField]
-		protected string m_CoinTextFormat = "x {0}";
+		protected string m_CoinTextFormat = "小鱼 x {0}";
 
 		protected override void Awake ()
 		{
@@ -22,12 +22,12 @@ namespace RedRunner.UI
 			var gm = GameManager.Singleton ?? FindFirstObjectByType<GameManager>();
 			if (gm == null)
 			{
-				Debug.LogError("UICoinText: GameManager not found in scene; coin UI will be disabled.");
+				Debug.LogError("UICoinText: GameManager not found in scene; fish UI will be disabled.");
 				enabled = false;
 				return;
 			}
 
-			gm.m_Coin.AddEventAndFire(UpdateCoinsText, this);
+			gm.m_Fish.AddEventAndFire(UpdateCoinsText, this);
 		}
 
 		private void UpdateCoinsText(int newCoinValue)

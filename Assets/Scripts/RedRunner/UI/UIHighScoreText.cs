@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +15,11 @@ namespace RedRunner.UI
 		{
 			GameManager.OnScoreChanged += GameManager_OnScoreChanged;
 			base.Awake ();
+		}
+
+		protected virtual void OnDestroy ()
+		{
+			GameManager.OnScoreChanged -= GameManager_OnScoreChanged;
 		}
 
 		void GameManager_OnScoreChanged ( float newScore, float highScore, float lastScore )

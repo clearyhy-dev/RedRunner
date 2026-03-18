@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -65,6 +65,11 @@ namespace RedRunner.Characters
 
 		#endregion
 
+		[Header("连跳")]
+		[SerializeField]
+		[Tooltip("空中可再跳次数（1=二段跳）")]
+		protected int m_MaxAirJumps = 1;
+
 		#region Private Variables
 
 		protected bool m_ClosingEye = false;
@@ -76,6 +81,7 @@ namespace RedRunner.Characters
 		protected int m_CurrentFootstepSoundIndex = 0;
 		protected Vector3 m_InitialScale;
 		protected Vector3 m_InitialPosition;
+		protected int m_AirJumpsLeft = 1;
 
 		#endregion
 
@@ -297,12 +303,16 @@ namespace RedRunner.Characters
 				m_CurrentRunSpeed = Mathf.SmoothDamp ( m_Speed.x, m_MaxRunSpeed, ref m_CurrentSmoothVelocity, m_RunSmoothTime );
 			}
 
-			// Input Processing
-			Move ( CrossPlatformInputManager.GetAxis ( "Horizontal" ) );
+			// Input Processing：手机端或编辑器 Play 时无按键则自动向右跑
+			float horizontal = CrossPlatformInputManager.GetAxis ( "Horizontal" );
+			if ( horizontal == 0f && ( Application.isMobilePlatform || Application.isEditor ) )
+				horizontal = 1f;
+			Move ( horizontal );
+			// 跳跃：键盘/虚拟键 或 编辑器下直接点鼠标左键
 			if ( CrossPlatformInputManager.GetButtonDown ( "Jump" ) )
-			{
 				Jump ();
-			}
+			else if ( Application.isEditor && Input.GetMouseButtonDown ( 0 ) )
+				Jump ();
 			if ( IsDead.Value && !m_ClosingEye )
 			{
 				StartCoroutine ( CloseEye () );
@@ -424,10 +434,16 @@ namespace RedRunner.Characters
 			if ( !IsDead.Value )
 			{
 				float speed = m_CurrentRunSpeed;
-//				if ( CrossPlatformInputManager.GetButton ( "Walk" ) )
-//				{
-//					speed = m_WalkSpeed;
-				//				}
+				// 加速跑：编辑器可用 左Shift 或 鼠标右键/点右半屏（MobileRunJumpInput.EditorSprintHeld）；手机用虚拟键 Sprint
+				bool sprint = Input.GetKey ( KeyCode.LeftShift );
+				if ( Application.isEditor )
+					sprint = sprint || RedRunner.Gameplay.Player.MobileRunJumpInput.EditorSprintHeld;
+				else if ( Application.isMobilePlatform )
+				{
+					try { sprint = sprint || CrossPlatformInputManager.GetButton ( "Sprint" ); } catch { }
+				}
+				if ( sprint )
+					speed = m_MaxRunSpeed;
 				Vector2 velocity = m_Rigidbody2D.linearVelocity;
 				velocity.x = speed * horizontalAxis;
 				m_Rigidbody2D.linearVelocity = velocity;
@@ -448,19 +464,36 @@ namespace RedRunner.Characters
 
 		public override void Jump ()
 		{
+			Jump ( m_JumpStrength );
+		}
+
+		public override void Jump ( float strength )
+		{
 			if ( !IsDead.Value )
 			{
 				if ( m_GroundCheck.IsGrounded )
 				{
-					Vector2 velocity = m_Rigidbody2D.linearVelocity;
-					velocity.y = m_JumpStrength;
-					m_Rigidbody2D.linearVelocity = velocity;
-					m_Animator.ResetTrigger ( "Jump" );
-					m_Animator.SetTrigger ( "Jump" );
-					m_JumpParticleSystem.Play ();
-					AudioManager.Singleton.PlayJumpSound ( m_JumpAndGroundedAudioSource );
+					m_AirJumpsLeft = m_MaxAirJumps;
+					DoJump ( strength );
+				}
+				else if ( m_AirJumpsLeft > 0 )
+				{
+					m_AirJumpsLeft--;
+					DoJump ( strength );
 				}
 			}
+		}
+
+		private void DoJump ( float strength )
+		{
+			float y = Mathf.Clamp ( strength, m_JumpStrength * 0.5f, m_JumpStrength * 1.5f );
+			Vector2 velocity = m_Rigidbody2D.linearVelocity;
+			velocity.y = y;
+			m_Rigidbody2D.linearVelocity = velocity;
+			m_Animator.ResetTrigger ( "Jump" );
+			m_Animator.SetTrigger ( "Jump" );
+			m_JumpParticleSystem.Play ();
+			AudioManager.Singleton.PlayJumpSound ( m_JumpAndGroundedAudioSource );
 		}
 
 		public override void Die ()
@@ -501,6 +534,7 @@ namespace RedRunner.Characters
 			m_Guard = false;
 			m_Block = false;
 			m_CurrentFootstepSoundIndex = 0;
+			m_AirJumpsLeft = m_MaxAirJumps;
 			transform.localScale = m_InitialScale;
 			m_Rigidbody2D.linearVelocity = Vector2.zero;
 			m_Skeleton.SetActive ( false, m_Rigidbody2D.linearVelocity );
@@ -527,6 +561,7 @@ namespace RedRunner.Characters
 		{
 			if ( !IsDead.Value )
 			{
+				m_AirJumpsLeft = m_MaxAirJumps;
 				m_JumpParticleSystem.Play ();
 				AudioManager.Singleton.PlayGroundedSound ( m_JumpAndGroundedAudioSource );
 			}

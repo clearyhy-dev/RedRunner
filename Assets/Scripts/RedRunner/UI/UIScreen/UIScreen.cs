@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -21,6 +21,7 @@ namespace RedRunner.UI
         public virtual void UpdateScreenStatus(bool open)
         {
             m_Animator.SetBool("Open", open);
+            m_CanvasGroup.alpha = open ? 1f : 0f;
             m_CanvasGroup.interactable = open;
             m_CanvasGroup.blocksRaycasts = open;
             IsOpen = open;

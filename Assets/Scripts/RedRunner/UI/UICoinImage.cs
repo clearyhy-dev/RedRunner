@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,15 +21,18 @@ namespace RedRunner.UI
 
 		protected override void Start()
 		{
+			var fish = ApplyFishSpriteAtRuntime.GetFishSprite();
+			if (fish != null) sprite = fish;
+
 			var gm = GameManager.Singleton ?? FindFirstObjectByType<GameManager>();
 			if (gm == null)
 			{
-				Debug.LogError("UICoinImage: GameManager not found in scene; coin UI will be disabled.");
+				Debug.LogError("UICoinImage: GameManager not found in scene; fish UI will be disabled.");
 				enabled = false;
 				return;
 			}
 
-			gm.m_Coin.AddEventAndFire(Coin_OnCoinCollected, this);
+			gm.m_Fish.AddEventAndFire(Coin_OnCoinCollected, this);
 		}
 
 		void Coin_OnCoinCollected (int coinValue)

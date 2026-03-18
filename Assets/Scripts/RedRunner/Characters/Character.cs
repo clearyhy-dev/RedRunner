@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -69,6 +69,9 @@ namespace RedRunner.Characters
 		public abstract void Move ( float horizontalAxis );
 
 		public abstract void Jump ();
+
+		/// <summary>跳跃，可指定力度（用于按住时长决定跳高）</summary>
+		public abstract void Jump ( float strength );
 
 		public abstract void Die ();
 

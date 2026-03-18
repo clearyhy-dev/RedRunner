@@ -65,7 +65,8 @@ namespace RedRunner
                 return;
             }
             m_Singleton = this;
-            Cursor.SetCursor(m_CursorDefaultTexture, Vector2.zero, CursorMode.Auto);
+            if (!Application.isMobilePlatform && m_CursorDefaultTexture != null)
+                Cursor.SetCursor(m_CursorDefaultTexture, Vector2.zero, CursorMode.Auto);
         }
 
         void Start()
@@ -81,7 +82,8 @@ namespace RedRunner
 
         void Update()
         {
-            if (Input.GetButtonDown("Cancel"))
+            bool pausePressed = Input.GetButtonDown("Cancel") || (Application.isMobilePlatform && Input.GetKeyDown(KeyCode.Escape));
+            if (pausePressed)
             {
                 //Added enumeration to store screen info, aka type, so it will be easier to understand it
                 var pauseScreen = GetUIScreen(UIScreenInfo.PAUSE_SCREEN);
@@ -111,16 +113,21 @@ namespace RedRunner
                 }
             }
 
+            if (Application.isMobilePlatform)
+                return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 // If the player clicks, also let the cursor be visible
                 Cursor.visible = true;
                 cursorTimer = 0;
-                Cursor.SetCursor(m_CursorClickTexture, Vector2.zero, CursorMode.Auto);
+                if (m_CursorClickTexture != null)
+                    Cursor.SetCursor(m_CursorClickTexture, Vector2.zero, CursorMode.Auto);
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                Cursor.SetCursor(m_CursorDefaultTexture, Vector2.zero, CursorMode.Auto);
+                if (m_CursorDefaultTexture != null)
+                    Cursor.SetCursor(m_CursorDefaultTexture, Vector2.zero, CursorMode.Auto);
             }
 
 

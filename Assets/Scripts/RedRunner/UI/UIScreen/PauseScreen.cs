@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,10 +25,7 @@ namespace RedRunner.UI
                 GameManager.Singleton.StartGame();
             });
 
-            HomeButton.SetButtonAction(() =>
-            {
-                GameManager.Singleton.Init();
-            });
+            HomeButton.SetButtonAction(() => GameManager.Singleton.ReturnHome());
         }
 
         public override void UpdateScreenStatus(bool open)

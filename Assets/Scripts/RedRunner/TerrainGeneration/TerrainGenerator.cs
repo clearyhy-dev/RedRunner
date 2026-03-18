@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -108,6 +108,7 @@ namespace RedRunner.TerrainGeneration
 
 		protected virtual void OnDestroy ()
 		{
+			GameManager.OnReset -= Reset;
 			m_Singleton = null;
 		}
 
@@ -193,15 +194,16 @@ namespace RedRunner.TerrainGeneration
 				Vector3 current = new Vector3 ( m_BackgroundLayers [ i ].CurrentX, 0f, 0f );
 				BackgroundBlock block = ( BackgroundBlock )ChooseFrom ( m_BackgroundLayers [ i ].Blocks );
 				float newX = 0f;
-				if ( m_BackgroundLayers [ i ].LastBlock != null )
+				var layerLast = m_BackgroundLayers [ i ].LastBlock;
+				if ( layerLast != null )
 				{
-					newX = m_BackgroundLayers [ i ].CurrentX + m_BackgroundLayers [ i ].LastBlock.Width;
+					newX = m_BackgroundLayers [ i ].CurrentX + layerLast.Width;
 				}
 				else
 				{
 					newX = 0f;
 				}
-				if ( block != null && ( m_BackgroundLayers [ i ].LastBlock == null || newX < m_Character.transform.position.x + m_BackgroundGenerateRange ) )
+				if ( block != null && ( layerLast == null || newX < m_Character.transform.position.x + m_BackgroundGenerateRange ) )
 				{
 					CreateBackgroundBlock ( block, current, m_BackgroundLayers [ i ], i );
 				}
@@ -211,21 +213,23 @@ namespace RedRunner.TerrainGeneration
 		public virtual void Remove ()
 		{
 			List<Block> blocksToRemove = new List<Block> ();
+			List<Vector3> nullBlockKeys = new List<Vector3> ();
 			foreach ( KeyValuePair<Vector3, Block> block in m_Blocks )
 			{
+				if ( block.Value == null ) { nullBlockKeys.Add ( block.Key ); continue; }
 				if ( block.Value.transform.position.x - m_CurrentX > m_DestroyRange )
-				{
 					blocksToRemove.Add ( block.Value );
-				}
 			}
+			foreach ( var k in nullBlockKeys ) m_Blocks.Remove ( k );
 			List<BackgroundBlock> backgroundBlocksToRemove = new List<BackgroundBlock> ();
+			List<Vector3> nullBgKeys = new List<Vector3> ();
 			foreach ( KeyValuePair<Vector3, BackgroundBlock> block in m_BackgroundBlocks )
 			{
+				if ( block.Value == null ) { nullBgKeys.Add ( block.Key ); continue; }
 				if ( block.Value.transform.position.x - m_FathestBackgroundX > m_DestroyRange )
-				{
 					backgroundBlocksToRemove.Add ( block.Value );
-				}
 			}
+			foreach ( var k in nullBgKeys ) m_BackgroundBlocks.Remove ( k );
 			for ( int i = 0; i < blocksToRemove.Count; i++ )
 			{
 				RemoveBlock ( blocksToRemove [ i ] );
@@ -239,23 +243,25 @@ namespace RedRunner.TerrainGeneration
 		public virtual void RemoveAll ()
 		{
 			List<Block> blocksToRemove = new List<Block> ();
+			List<Vector3> nullBlockKeys = new List<Vector3> ();
 			foreach ( KeyValuePair<Vector3, Block> block in m_Blocks )
 			{
-				blocksToRemove.Add ( block.Value );
+				if ( block.Value == null ) nullBlockKeys.Add ( block.Key );
+				else blocksToRemove.Add ( block.Value );
 			}
+			foreach ( var k in nullBlockKeys ) m_Blocks.Remove ( k );
 			List<BackgroundBlock> backgroundBlocksToRemove = new List<BackgroundBlock> ();
+			List<Vector3> nullBgKeys = new List<Vector3> ();
 			foreach ( KeyValuePair<Vector3, BackgroundBlock> block in m_BackgroundBlocks )
 			{
-				backgroundBlocksToRemove.Add ( block.Value );
+				if ( block.Value == null ) nullBgKeys.Add ( block.Key );
+				else backgroundBlocksToRemove.Add ( block.Value );
 			}
+			foreach ( var k in nullBgKeys ) m_BackgroundBlocks.Remove ( k );
 			for ( int i = 0; i < blocksToRemove.Count; i++ )
-			{
 				RemoveBlock ( blocksToRemove [ i ] );
-			}
 			for ( int i = 0; i < backgroundBlocksToRemove.Count; i++ )
-			{
 				RemoveBackgroundBlock ( backgroundBlocksToRemove [ i ] );
-			}
 		}
 
 		public virtual void RemoveBlockAt ( Vector3 position )
@@ -265,16 +271,26 @@ namespace RedRunner.TerrainGeneration
 
 		public virtual void RemoveBlock ( Block block )
 		{
+			if ( block == null ) return;
+			if ( m_LastBlock == block ) m_LastBlock = null;
+			Vector3 pos = block.transform.position;
+			if ( !m_Blocks.TryGetValue ( pos, out Block b ) || b != block ) return;
 			block.OnRemove ( this );
-			Destroy ( m_Blocks [ block.transform.position ].gameObject );
-			m_Blocks.Remove ( block.transform.position );
+			Destroy ( block.gameObject );
+			m_Blocks.Remove ( pos );
 		}
 
 		public virtual void RemoveBackgroundBlock ( BackgroundBlock block )
 		{
+			if ( block == null ) return;
+			for ( int i = 0; i < m_BackgroundLayers.Length; i++ )
+				if ( m_BackgroundLayers [ i ].LastBlock == block )
+					m_BackgroundLayers [ i ].LastBlock = null;
+			Vector3 pos = block.transform.position;
+			if ( !m_BackgroundBlocks.TryGetValue ( pos, out BackgroundBlock bg ) || bg != block ) return;
 			block.OnRemove ( this );
-			Destroy ( m_BackgroundBlocks [ block.transform.position ].gameObject );
-			m_BackgroundBlocks.Remove ( block.transform.position );
+			Destroy ( block.gameObject );
+			m_BackgroundBlocks.Remove ( pos );
 		}
 
 		public virtual bool CreateBlock ( Block blockPrefab, Vector3 position )
@@ -322,6 +338,7 @@ namespace RedRunner.TerrainGeneration
 			Block characterBlock = null;
 			foreach ( KeyValuePair<Vector3, Block> block in m_Blocks )
 			{
+				if ( block.Value == null ) continue;
 				if ( block.Key.x <= m_Character.transform.position.x && block.Key.x + block.Value.Width > m_Character.transform.position.x )
 				{
 					characterBlock = block.Value;

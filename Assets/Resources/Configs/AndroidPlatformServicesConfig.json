@@ -1,0 +1,27 @@
+{
+  "packageName": "com.clearyhy.meowrunner",
+  "googlePlayGames": {
+    "enableGooglePlayGames": true,
+    "appId": "580332765043",
+    "webClientId": "580332765043-sc3vkqserkeddsbs47ue7mhqli7atumq.apps.googleusercontent.com",
+    "resourceXmlPath": ""
+  },
+  "leaderboards": {
+    "playSceneLeaderboardId": "CgkI8_6c9PEQEAIQAQ",
+    "creationSceneLeaderboardId": "CgkI8_6c9PEQEAIQAQ"
+  },
+  "adMob": {
+    "enableAdMob": false,
+    "useTestAds": true,
+    "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+    "bannerAdUnitId": "ca-app-pub-3940256099942544/6300978111",
+    "interstitialAdUnitId": "ca-app-pub-3940256099942544/1033173712",
+    "rewardedAdUnitId": "ca-app-pub-3940256099942544/5224354917",
+    "interstitialFrequency": 3,
+    "testDeviceIds": []
+  },
+  "consent": {
+    "enableDebugGeographyEea": false,
+    "debugTestDeviceIds": []
+  }
+}

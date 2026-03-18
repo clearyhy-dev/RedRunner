@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +28,19 @@ namespace RedRunner.Collectables
 		protected PoolTag m_destructTag;
 		[SerializeField]
 		protected ObjectPool m_objectPool = null;
+
+		private void Awake()
+		{
+			TryApplyFishSprite();
+		}
+
+		private void TryApplyFishSprite()
+		{
+			var fish = ApplyFishSpriteAtRuntime.GetFishSprite();
+			if (fish == null) return;
+			var sr = m_SpriteRenderer != null ? m_SpriteRenderer : GetComponentInChildren<SpriteRenderer>(true);
+			if (sr != null) sr.sprite = fish;
+		}
 
 		public override SpriteRenderer SpriteRenderer {
 			get {
@@ -74,19 +87,21 @@ namespace RedRunner.Collectables
 
 		public override void Collect ()
 		{
-            GameManager.Singleton.m_Coin.Value++;
-			m_Animator.SetTrigger (COLLECT_TRIGGER);
-			m_ParticleSystem.Play ();
-			m_SpriteRenderer.enabled = false;
-			m_Collider2D.enabled = false;
-			//Destroy (gameObject, m_ParticleSystem.main.duration);
+            GameManager.Singleton.m_Fish.Value++;
+			if (m_Animator != null) m_Animator.SetTrigger (COLLECT_TRIGGER);
+			if (m_ParticleSystem != null) m_ParticleSystem.Play ();
+			if (m_SpriteRenderer != null) m_SpriteRenderer.enabled = false;
+			if (m_Collider2D != null) m_Collider2D.enabled = false;
 			ReturnToPool();
-			AudioManager.Singleton.PlayCoinSound (transform.position);
+			if (AudioManager.Singleton != null) AudioManager.Singleton.PlayCoinSound (transform.position);
 		}
 
 		public override void ReturnToPool()
 		{
-			m_objectPool.ReturnToPool(m_destructTag, this, m_destructTime);
+			if (m_objectPool != null)
+				m_objectPool.ReturnToPool(m_destructTag, this, m_destructTime);
+			else
+				Destroy(gameObject, m_ParticleSystem != null ? m_ParticleSystem.main.duration : 0.5f);
 		}
 	}
 }
