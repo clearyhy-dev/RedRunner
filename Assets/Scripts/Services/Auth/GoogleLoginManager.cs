@@ -6,6 +6,10 @@ using UnityEngine.UI;
 using RedRunner;
 using RedRunner.UI;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
+
 #if USE_GPGS
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
@@ -205,6 +209,7 @@ namespace Services.Auth
                 _loginInProgress = false;
                 _loginStartedAt = -1f;
                 bool success = result == SignInStatus.Success;
+                Debug.Log("[GoogleLogin] ManuallyAuthenticate result = " + result);
                 HandleLoginResult(success, result.ToString());
                 onComplete?.Invoke(success);
             });
@@ -249,6 +254,7 @@ namespace Services.Auth
                 _loginInProgress = false;
                 _loginStartedAt = -1f;
                 bool success = result == SignInStatus.Success;
+                Debug.Log("[GoogleLogin] Authenticate result = " + result);
                 HandleLoginResult(success, result.ToString(), isSilent: true);
                 onComplete?.Invoke(success);
             });
@@ -363,11 +369,51 @@ namespace Services.Auth
         {
             EventSystem existing = FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include);
             if (existing != null)
+            {
+                EnsureCompatibleInputModule(existing.gameObject);
                 return;
+            }
 
-            GameObject eventSystemGo = new GameObject("GoogleLoginEventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            GameObject eventSystemGo = new GameObject("GoogleLoginEventSystem", typeof(EventSystem));
+            EnsureCompatibleInputModule(eventSystemGo);
             DontDestroyOnLoad(eventSystemGo);
             Debug.Log("[GoogleLogin] 已自动创建 EventSystem，确保悬浮登录按钮可点击。");
+        }
+
+        private void EnsureCompatibleInputModule(GameObject eventSystemGo)
+        {
+            if (eventSystemGo == null)
+                return;
+
+            BaseInputModule[] modules = eventSystemGo.GetComponents<BaseInputModule>();
+
+#if ENABLE_INPUT_SYSTEM
+            bool hasInputSystemModule = eventSystemGo.GetComponent<InputSystemUIInputModule>() != null;
+            for (int i = 0; i < modules.Length; i++)
+            {
+                if (modules[i] != null && modules[i] is not InputSystemUIInputModule)
+                    Destroy(modules[i]);
+            }
+
+            if (!hasInputSystemModule)
+            {
+                eventSystemGo.AddComponent<InputSystemUIInputModule>();
+                Debug.Log("[GoogleLogin] 已为 EventSystem 切换到 InputSystemUIInputModule。");
+            }
+#else
+            bool hasStandaloneModule = eventSystemGo.GetComponent<StandaloneInputModule>() != null;
+            for (int i = 0; i < modules.Length; i++)
+            {
+                if (modules[i] != null && modules[i] is not StandaloneInputModule)
+                    Destroy(modules[i]);
+            }
+
+            if (!hasStandaloneModule)
+            {
+                eventSystemGo.AddComponent<StandaloneInputModule>();
+                Debug.Log("[GoogleLogin] 已为 EventSystem 切换到 StandaloneInputModule。");
+            }
+#endif
         }
 
         /// <summary>
