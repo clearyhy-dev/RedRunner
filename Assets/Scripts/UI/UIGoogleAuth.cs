@@ -10,17 +10,28 @@ namespace UI
     /// </summary>
     public class UIGoogleAuth : MonoBehaviour
     {
+        [SerializeField] private bool hideTemporarilyOnMobile = true;
         [SerializeField] private Button button;
         [SerializeField] private Text statusText;
 
         private void Start()
         {
+            if (hideTemporarilyOnMobile && Application.isMobilePlatform)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
             if (button == null) button = GetComponent<Button>();
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(OnButtonClick);
             }
+
+            if (statusText != null && !GoogleLoginManager.Instance.IsLoggedIn())
+                statusText.text = "Google 登录(暂未启用)";
+
             Refresh();
         }
 

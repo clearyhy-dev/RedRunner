@@ -8,14 +8,14 @@ using RedRunner.UI;
 
 /// <summary>
 /// 一键把 Google 登录图标挂到 Start Screen 的 Google 按钮上，并设置样式与当前 UI 一致。
-/// 菜单：Meow Runner > Setup Google Login Button (Apply Icon & Style)
+/// 菜单：Meow Runner > Tools > 登录与服务 > Setup Google Login Button (Apply Icon & Style)
 /// </summary>
 public static class MeowRunnerGoogleLoginSetup
 {
     private const string IconFileName = "GoogleLoginButtonIcon";
     private const string IconSearchFilter = "GoogleLoginButtonIcon t:Texture2D";
 
-    [MenuItem("Meow Runner/Setup Google Login Button (Apply Icon & Style)")]
+    [MenuItem("Meow Runner/Tools/登录与服务/Setup Google Login Button (Apply Icon & Style)")]
     public static void SetupGoogleLoginButton()
     {
         if (!EditorSceneManager.GetActiveScene().name.Equals("Play"))

@@ -4,7 +4,7 @@ using UnityEditor;
 
 /// <summary>
 /// 把本机已有的 Android SDK/NDK/JDK 路径一次性写入 Unity 的 External Tools。
-/// 使用前请把下面三个路径改成你电脑上的实际路径，再在菜单执行 Meow Runner > Set Android SDK/NDK/JDK From Script。
+/// 使用前请把下面三个路径改成你电脑上的实际路径，再在菜单执行 Meow Runner > Android 环境 > Set Android SDK/NDK/JDK From Script。
 /// </summary>
 public static class SetAndroidExternalTools
 {
@@ -13,7 +13,7 @@ public static class SetAndroidExternalTools
     private const string NDK_PATH = "D:\\Android\\Sdk\\ndk\\26.1.10909125";
     private const string JDK_PATH = "E:\\java\\jdk-17";
 
-    [MenuItem("Meow Runner/Set Android SDK/NDK/JDK From Script")]
+    [MenuItem("Meow Runner/Android 环境/Set Android SDK/NDK/JDK From Script")]
     public static void ApplyPaths()
     {
         int set = 0;
@@ -49,7 +49,7 @@ public static class SetAndroidExternalTools
         Debug.Log("Meow Runner: 已写入 Android 路径（SDK/NDK/JDK）。请到 Edit > Preferences > External Tools 确认。若 Build 仍报错，请在该页手动核对路径。");
     }
 
-    [MenuItem("Meow Runner/Open External Tools (Android 路径页)")]
+    [MenuItem("Meow Runner/Android 环境/Open External Tools (Android 路径页)")]
     public static void OpenExternalTools()
     {
         SettingsService.OpenUserPreferences("Preferences/External Tools");

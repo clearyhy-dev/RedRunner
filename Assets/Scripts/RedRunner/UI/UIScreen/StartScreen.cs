@@ -313,6 +313,7 @@ namespace RedRunner.UI
 
             Image rootImage = _mobileHomeRoot.GetComponent<Image>();
             rootImage.color = new Color(0f, 0f, 0f, 0.42f);
+            rootImage.raycastTarget = false;
 
             VerticalLayoutGroup layout = _mobileHomeRoot.GetComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(28, 28, 28, 28);
@@ -465,6 +466,7 @@ namespace RedRunner.UI
             text.fontStyle = fontStyle;
             text.alignment = TextAnchor.MiddleCenter;
             text.color = color;
+            text.raycastTarget = false;
 
             LayoutElement element = go.GetComponent<LayoutElement>();
             element.minHeight = minHeight;
@@ -477,6 +479,7 @@ namespace RedRunner.UI
             GameObject buttonGo = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(LayoutElement));
             Image buttonImage = buttonGo.GetComponent<Image>();
             buttonImage.color = backgroundColor;
+            buttonImage.raycastTarget = true;
 
             LayoutElement buttonLayout = buttonGo.GetComponent<LayoutElement>();
             buttonLayout.minHeight = 110f;
@@ -497,6 +500,7 @@ namespace RedRunner.UI
             text.fontStyle = FontStyle.Bold;
             text.alignment = TextAnchor.MiddleCenter;
             text.color = Color.white;
+            text.raycastTarget = false;
 
             Button button = buttonGo.GetComponent<Button>();
             button.targetGraphic = buttonImage;

@@ -24,13 +24,13 @@ public sealed class MeowRunnerPlatformServicesSetup : IPreprocessBuildWithReport
 
     public int callbackOrder => 0;
 
-    [MenuItem("Meow Runner/Platform Services/Apply Android Services Config", false, 140)]
+    [MenuItem("Meow Runner/Tools/Platform Services/Apply Android Services Config", false, 140)]
     public static void ApplyAndroidServicesConfigMenu()
     {
         ApplyAll(logToConsole: true);
     }
 
-    [MenuItem("Meow Runner/Platform Services/Open Services Config", false, 141)]
+    [MenuItem("Meow Runner/Tools/Platform Services/Open Services Config", false, 141)]
     public static void OpenServicesConfig()
     {
         EnsureConfigFileExists();

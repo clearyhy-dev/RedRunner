@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 
 /// <summary>
-/// 打包安卓并可选安装到手机。菜单：Meow Runner > Build Android (APK) / Build Android & Install。
+/// 打包安卓并可选安装到手机。根菜单只保留最常用的打包入口，其余设置项放到 Tools 子菜单。
 /// </summary>
 public static class MeowRunnerAndroidBuild
 {
@@ -16,6 +16,12 @@ public static class MeowRunnerAndroidBuild
     public static void BuildAndroidApk()
     {
         BuildAndroid(installToDevice: false);
+    }
+
+    [MenuItem("Meow Runner/Build Android (AAB)", false, 102)]
+    public static void BuildAndroidAab()
+    {
+        BuildAndroidAppBundle();
     }
 
     [MenuItem("Meow Runner/Build Android & Install", false, 101)]
@@ -31,7 +37,7 @@ public static class MeowRunnerAndroidBuild
     }
 
     /// <summary>与 Google Play 上的项目名一致，打出来的应用在手机/商店显示为 "Hungry Kitty: Fish Run"。</summary>
-    [MenuItem("Meow Runner/设置 Google Play 应用名 (Hungry Kitty: Fish Run)", false, 120)]
+    [MenuItem("Meow Runner/Tools/项目设置/设置 Google Play 应用名 (Hungry Kitty: Fish Run)", false, 120)]
     public static void SetGooglePlayProductName()
     {
         const string name = "Hungry Kitty: Fish Run";
@@ -47,6 +53,9 @@ public static class MeowRunnerAndroidBuild
                 return;
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
         }
+
+        if (!EnsureReleaseSigningConfigured())
+            return;
 
         EnsurePlaySceneInBuild();
 
@@ -72,6 +81,81 @@ public static class MeowRunnerAndroidBuild
             InstallApk(path);
         else
             EditorUtility.RevealInFinder(path);
+    }
+
+    public static void BuildAndroidAppBundle()
+    {
+        if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+        {
+            if (!Application.isBatchMode)
+            {
+                if (!EditorUtility.DisplayDialog("切换平台", "当前不是 Android 平台，需要先切换到 Android 再打包。是否现在切换？（会花一些时间）", "切换并继续", "取消"))
+                    return;
+            }
+
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+        }
+
+        if (!EnsureReleaseSigningConfigured())
+            return;
+
+        EnsurePlaySceneInBuild();
+
+        string productName = Application.productName;
+        if (string.IsNullOrEmpty(productName)) productName = "Hungry Kitty Fish Run";
+        productName = SanitizeFileName(productName);
+        string dir = Path.Combine(Path.GetDirectoryName(Application.dataPath), BuildFolderName);
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        string fileName = productName + "-" + PlayerSettings.bundleVersion + ".aab";
+        string path = Path.Combine(dir, fileName);
+
+        bool oldBuildAppBundle = EditorUserBuildSettings.buildAppBundle;
+        try
+        {
+            EditorUserBuildSettings.buildAppBundle = true;
+            var report = BuildPipeline.BuildPlayer(GetScenePaths(), path, BuildTarget.Android, BuildOptions.None);
+
+            if (report.summary.result != BuildResult.Succeeded)
+            {
+                if (Application.isBatchMode)
+                    throw new System.Exception("AAB 打包失败: " + report.summary.result);
+
+                EditorUtility.DisplayDialog("AAB 打包失败", "请查看 Console 中的错误信息。\n" + report.summary.result, "确定");
+                return;
+            }
+
+            Debug.Log("Android App Bundle 已生成: " + path);
+            if (!Application.isBatchMode)
+                EditorUtility.RevealInFinder(path);
+        }
+        finally
+        {
+            EditorUserBuildSettings.buildAppBundle = oldBuildAppBundle;
+        }
+    }
+
+    private static bool EnsureReleaseSigningConfigured()
+    {
+        if (PlayerSettings.Android.useCustomKeystore &&
+            !string.IsNullOrEmpty(PlayerSettings.Android.keystoreName) &&
+            !string.IsNullOrEmpty(PlayerSettings.Android.keyaliasName))
+        {
+            return true;
+        }
+
+        const string message =
+            "当前 Android 构建仍在使用默认 debug 签名，Google Play 不接受这种 AAB。\n\n" +
+            "请先到 Edit > Project Settings > Player > Android > Publishing Settings 中配置正式发布签名：\n" +
+            "1. 勾选 Use Custom Keystore\n" +
+            "2. 选择你的 release keystore / jks 文件\n" +
+            "3. 填写 Keystore Password、Alias、Alias Password\n" +
+            "4. 保存后重新执行 Build Android (AAB)";
+
+        if (Application.isBatchMode)
+            throw new System.Exception(message);
+
+        EditorUtility.DisplayDialog("缺少正式签名配置", message, "确定");
+        return false;
     }
 
     private static void EnsurePlaySceneInBuild()

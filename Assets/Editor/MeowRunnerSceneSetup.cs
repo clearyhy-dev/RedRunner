@@ -9,13 +9,13 @@ using RedRunner.Collectables;
 
 /// <summary>
 /// 只保留 Play、Creation 场景并写入 Build Settings。
-/// 菜单：Meow Runner > Setup Scenes for Build
+/// 菜单：Meow Runner > Tools > 场景与资源
 /// </summary>
 public static class MeowRunnerSceneSetup
 {
     private const string ScenesPath = "Assets/Scenes";
 
-    [MenuItem("Meow Runner/Setup Scenes for Build")]
+    [MenuItem("Meow Runner/Tools/场景与资源/Setup Scenes for Build")]
     public static void SetupScenes()
     {
         if (!Directory.Exists(ScenesPath))
@@ -40,7 +40,7 @@ public static class MeowRunnerSceneSetup
         Debug.Log("Meow Runner: Build 已更新，仅包含 Play、Creation。");
     }
 
-    [MenuItem("Meow Runner/Set Player Product Name to Meow Runner")]
+    [MenuItem("Meow Runner/Tools/项目设置/Set Player Product Name to Meow Runner")]
     public static void SetProductName()
     {
         PlayerSettings.productName = "Meow Runner";
@@ -49,7 +49,7 @@ public static class MeowRunnerSceneSetup
 
     private const string PlayScenePath = "Assets/Scenes/Play.unity";
 
-    [MenuItem("Meow Runner/Setup Play Scene for Mobile (Auto-Run + Tap Jump + Screen Adapter)")]
+    [MenuItem("Meow Runner/Tools/场景与资源/Setup Play Scene for Mobile (Auto-Run + Tap Jump + Screen Adapter)")]
     public static void SetupPlayForMobile()
     {
         OpenPlayAndAddMobileSetup(addRunJump: true, addScreenAdapter: true);
@@ -113,7 +113,7 @@ public static class MeowRunnerSceneSetup
             EditorSceneManager.SaveScene(scene);
     }
 
-    [MenuItem("Meow Runner/小鱼显示一键设置 (Copy to Resources + Apply in Play)")]
+    [MenuItem("Meow Runner/Tools/场景与资源/小鱼显示一键设置 (Copy to Resources + Apply in Play)")]
     public static void OneClickFishSetup()
     {
         string resourcesDir = Path.Combine(Application.dataPath, "Resources").Replace("\\", "/");

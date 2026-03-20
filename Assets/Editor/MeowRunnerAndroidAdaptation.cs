@@ -7,7 +7,7 @@ using RedRunner.UI;
 /// <summary>
 /// Android 手机适配辅助工具：
 /// 统一 Canvas 自适应、拉伸 UIScreen 根节点、给选中对象添加安全区组件，以及输出检查结果。
-/// 菜单：Meow Runner > Android 适配 > ...
+/// 菜单：Meow Runner > Tools > Android 适配 > ...
 /// </summary>
 public static class MeowRunnerAndroidAdaptation
 {
@@ -20,7 +20,7 @@ public static class MeowRunnerAndroidAdaptation
         return false;
     }
 
-    [MenuItem("Meow Runner/Android 适配/配置当前场景 Canvas 自适应", false, 200)]
+    [MenuItem("Meow Runner/Tools/Android 适配/配置当前场景 Canvas 自适应", false, 200)]
     public static void ConfigureCanvasScaler()
     {
         if (!EnsureNotInPlayMode())
@@ -59,7 +59,7 @@ public static class MeowRunnerAndroidAdaptation
             EditorUtility.DisplayDialog("未修改", "未找到可配置的 Screen Space Canvas。", "确定");
     }
 
-    [MenuItem("Meow Runner/Android 适配/重置当前场景 UIScreen 到手机参考框", false, 201)]
+    [MenuItem("Meow Runner/Tools/Android 适配/重置当前场景 UIScreen 到手机参考框", false, 201)]
     public static void NormalizeUIScreenRoots()
     {
         if (!EnsureNotInPlayMode())
@@ -94,7 +94,7 @@ public static class MeowRunnerAndroidAdaptation
         EditorUtility.DisplayDialog("已处理", "已将 " + updated + " 个 UIScreen 根节点重置到手机参考框。", "确定");
     }
 
-    [MenuItem("Meow Runner/Android 适配/给选中对象添加 SafeAreaFitter", false, 202)]
+    [MenuItem("Meow Runner/Tools/Android 适配/给选中对象添加 SafeAreaFitter", false, 202)]
     public static void AddSafeAreaFitterToSelection()
     {
         if (!EnsureNotInPlayMode())
@@ -127,7 +127,7 @@ public static class MeowRunnerAndroidAdaptation
         EditorUtility.DisplayDialog("处理完成", "已新增 " + added + " 个 SafeAreaFitter。", "确定");
     }
 
-    [MenuItem("Meow Runner/Android 适配/检查当前场景手机适配问题", false, 203)]
+    [MenuItem("Meow Runner/Tools/Android 适配/检查当前场景手机适配问题", false, 203)]
     public static void CheckSceneAdaptation()
     {
         if (!EnsureNotInPlayMode())
@@ -172,7 +172,7 @@ public static class MeowRunnerAndroidAdaptation
             "确定");
     }
 
-    [MenuItem("Meow Runner/Android 适配/设置安卓竖屏（推荐）", false, 204)]
+    [MenuItem("Meow Runner/Tools/Android 适配/设置安卓竖屏（推荐）", false, 204)]
     public static void SetPortrait()
     {
         if (!EnsureNotInPlayMode())
